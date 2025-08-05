@@ -2,13 +2,10 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwGp4s-RRJQPHcwxHFOECnFrKjI9GxShSIoOSGuh3YHNH9MZgOLez3sxk0tg0xSWVYK/exec";
 
 // Ambil elemen-elemen dari DOM
-const dataForm = document.getElementById('dataForm');
-const dataTableBody = document.querySelector('#dataTable tbody');
-const submitBtn = document.getElementById('submitBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const rowIndexInput = document.getElementById('rowIndex');
-const namaInput = document.getElementById('nama');
-const emailInput = document.getElementById('email');
+const mataPelajaranInput = document.getElementById('mataPelajaran');
+const namaGuruInput = document.getElementById('namaGuru');
+const waktuInput = document.getElementById('waktu');
+const ruangInput = document.getElementById('ruang');
 
 // Fungsi untuk membaca/menampilkan semua data (READ)
 async function fetchAndDisplayData() {
@@ -44,9 +41,11 @@ async function fetchAndDisplayData() {
 dataForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const nama = namaInput.value;
-    const email = emailInput.value;
-    const rowIndex = rowIndexInput.value;
+   const mataPelajaran = mataPelajaranInput.value;
+  const namaGuru = namaGuruInput.value;
+  const waktu = waktuInput.value;
+  const ruang = ruangInput.value;
+
     
     let url;
     let method;
