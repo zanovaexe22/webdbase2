@@ -1,5 +1,5 @@
 // Ganti dengan URL Google Apps Script Anda
-const API_URL = "https://script.google.com/macros/s/AKfycbwzN82hWHGHCN94uN7BQ-ymuAM4H-cd_sv2hHyoh7LLvZquvxFuRqNbQc6J6XMOtRdi/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyIVNKHdYDw6hIgmKwDmooydHILIpUziRxqtDWwKWexDThkjkMg4avTT2ZpH6uZSf0KyQ/exec";
 
 // Ambil elemen-elemen dari DOM
 const dataForm = document.getElementById('dataForm');
