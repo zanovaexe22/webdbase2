@@ -55,12 +55,12 @@ dataForm.addEventListener('submit', async (e) => {
         // Mode UPDATE
         url = `${API_URL}?action=update&rowIndex=${rowIndex}`;
         method = 'POST'; // Google Apps Script seringkali menggunakan POST untuk aksi
-        body = JSON.stringify({ nama, email });
+        body = JSON.stringify({ mataPelajaran, namaGuru, waktu, ruang });
     } else {
         // Mode CREATE
         url = `${API_URL}?action=create`;
         method = 'POST';
-        body = JSON.stringify({ nama, email });
+        body = JSON.stringify({ mataPelajaran, namaGuru, waktu, ruang });
     }
 
     try {
