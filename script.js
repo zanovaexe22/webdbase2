@@ -1,7 +1,6 @@
-// Ganti dengan URL Google Apps Script Anda
-const API_URL = "https://script.google.com/macros/s/AKfycbwGp4s-RRJQPHcwxHFOECnFrKjI9GxShSIoOSGuh3YHNH9MZgOLez3sxk0tg0xSWVYK/exec";
+// Ganti dengan URL Web App yang kamu dapat dari Apps Script
+const API_URL = "https://script.google.com/macros/s/AKfycbwB3PL5UvLmraWjZGoXkFMKdpu8Shw4aQJyMQNDVypueZh69-L1alaw4KWeOQsJHR10/exec";
 
-// Ambil elemen-elemen dari DOM
 const mataPelajaranInput = document.getElementById('mataPelajaran');
 const namaGuruInput = document.getElementById('namaGuru');
 const waktuInput = document.getElementById('waktu');
@@ -12,13 +11,11 @@ const submitBtn = document.getElementById('submitBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 const dataTableBody = document.querySelector('#dataTable tbody');
 
-// Fungsi untuk membaca/menampilkan semua data
 async function fetchAndDisplayData() {
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        // Bersihkan tabel sebelum menambahkan data baru
         dataTableBody.innerHTML = '';
 
         data.forEach((row, index) => {
@@ -42,7 +39,6 @@ async function fetchAndDisplayData() {
     }
 }
 
-// Fungsi untuk menangani tambah/edit data
 dataForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -52,27 +48,15 @@ dataForm.addEventListener('submit', async (e) => {
     const ruang = ruangInput.value;
     const rowIndex = rowIndexInput.value;
 
-    let url, method, body;
-
-    if (rowIndex) {
-        // UPDATE
-        url = `${API_URL}?action=update&rowIndex=${rowIndex}`;
-        method = 'POST';
-        body = JSON.stringify({ mataPelajaran, namaGuru, waktu, ruang });
-    } else {
-        // CREATE
-        url = `${API_URL}?action=create`;
-        method = 'POST';
-        body = JSON.stringify({ mataPelajaran, namaGuru, waktu, ruang });
-    }
+    const formData = new FormData();
+    formData.append('action', rowIndex ? 'update' : 'create');
+    formData.append('rowIndex', rowIndex);
+    formData.append('data', JSON.stringify({ mataPelajaran, namaGuru, waktu, ruang }));
 
     try {
-        const response = await fetch(url, {
-            method,
-            body,
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: formData
         });
 
         const result = await response.json();
@@ -92,7 +76,6 @@ dataForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Fungsi untuk mengisi form saat edit
 function editData(index, mataPelajaran, guru, waktu, ruang) {
     rowIndexInput.value = index;
     mataPelajaranInput.value = mataPelajaran;
@@ -104,7 +87,6 @@ function editData(index, mataPelajaran, guru, waktu, ruang) {
     cancelBtn.style.display = 'inline-block';
 }
 
-// Fungsi untuk membatalkan edit
 cancelBtn.addEventListener('click', () => {
     dataForm.reset();
     rowIndexInput.value = '';
@@ -112,14 +94,19 @@ cancelBtn.addEventListener('click', () => {
     cancelBtn.style.display = 'none';
 });
 
-// Fungsi untuk menghapus data
 async function deleteData(rowIndex) {
     if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
 
-    const url = `${API_URL}?action=delete&rowIndex=${rowIndex}`;
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('rowIndex', rowIndex);
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: formData
+        });
+
         const result = await response.json();
         if (result.status === 'success') {
             alert(result.message);
@@ -133,5 +120,4 @@ async function deleteData(rowIndex) {
     }
 }
 
-// Muat data saat halaman dimuat
 document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
