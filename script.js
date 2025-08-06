@@ -6,25 +6,30 @@ const mataPelajaranInput = document.getElementById('mataPelajaran');
 const namaGuruInput = document.getElementById('namaGuru');
 const waktuInput = document.getElementById('waktu');
 const ruangInput = document.getElementById('ruang');
+const dataForm = document.getElementById('dataForm');
+const rowIndexInput = document.getElementById('rowIndex');
+const submitBtn = document.getElementById('submitBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const dataTableBody = document.querySelector('#dataTable tbody');
 
-// Fungsi untuk membaca/menampilkan semua data (READ)
+// Fungsi untuk membaca/menampilkan semua data
 async function fetchAndDisplayData() {
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
-        
+
         // Bersihkan tabel sebelum menambahkan data baru
         dataTableBody.innerHTML = '';
-        
-        data.forEach((row, index) => {
-            if (index === 0) return; // Lewati baris header
 
+        data.forEach((row, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
+                <td>${row.mataPelajaran}</td>
+                <td>${row.guru}</td>
+                <td>${row.waktu}</td>
+                <td>${row.ruang}</td>
                 <td class="action-buttons">
-                    <button class="edit-btn" onclick="editData(${index}, '${row[0]}', '${row[1]}')">Edit</button>
+                    <button class="edit-btn" onclick="editData(${index}, '${row.mataPelajaran}', '${row.guru}', '${row.waktu}', '${row.ruang}')">Edit</button>
                     <button class="delete-btn" onclick="deleteData(${index})">Hapus</button>
                 </td>
             `;
@@ -37,27 +42,25 @@ async function fetchAndDisplayData() {
     }
 }
 
-// Fungsi untuk menangani penambahan atau pembaruan data (CREATE & UPDATE)
+// Fungsi untuk menangani tambah/edit data
 dataForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-   const mataPelajaran = mataPelajaranInput.value;
-  const namaGuru = namaGuruInput.value;
-  const waktu = waktuInput.value;
-  const ruang = ruangInput.value;
 
-    
-    let url;
-    let method;
-    let body;
+    const mataPelajaran = mataPelajaranInput.value;
+    const namaGuru = namaGuruInput.value;
+    const waktu = waktuInput.value;
+    const ruang = ruangInput.value;
+    const rowIndex = rowIndexInput.value;
+
+    let url, method, body;
 
     if (rowIndex) {
-        // Mode UPDATE
+        // UPDATE
         url = `${API_URL}?action=update&rowIndex=${rowIndex}`;
-        method = 'POST'; // Google Apps Script seringkali menggunakan POST untuk aksi
+        method = 'POST';
         body = JSON.stringify({ mataPelajaran, namaGuru, waktu, ruang });
     } else {
-        // Mode CREATE
+        // CREATE
         url = `${API_URL}?action=create`;
         method = 'POST';
         body = JSON.stringify({ mataPelajaran, namaGuru, waktu, ruang });
@@ -65,13 +68,13 @@ dataForm.addEventListener('submit', async (e) => {
 
     try {
         const response = await fetch(url, {
-            method: method,
-            body: body,
+            method,
+            body,
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        
+
         const result = await response.json();
         if (result.status === 'success') {
             alert(result.message);
@@ -79,27 +82,29 @@ dataForm.addEventListener('submit', async (e) => {
             rowIndexInput.value = '';
             submitBtn.textContent = 'Tambah Data';
             cancelBtn.style.display = 'none';
-            fetchAndDisplayData(); // Muat ulang data
+            fetchAndDisplayData();
         } else {
             alert('Aksi gagal: ' + result.message);
         }
-
     } catch (error) {
         console.error('Error submitting data:', error);
         alert('Gagal mengirim data. Cek koneksi atau URL API.');
     }
 });
 
-// Fungsi untuk mengisi form saat tombol Edit diklik
-function editData(rowIndex, nama, email) {
-    rowIndexInput.value = rowIndex;
-    namaInput.value = nama;
-    emailInput.value = email;
+// Fungsi untuk mengisi form saat edit
+function editData(index, mataPelajaran, guru, waktu, ruang) {
+    rowIndexInput.value = index;
+    mataPelajaranInput.value = mataPelajaran;
+    namaGuruInput.value = guru;
+    waktuInput.value = waktu;
+    ruangInput.value = ruang;
+
     submitBtn.textContent = 'Perbarui Data';
     cancelBtn.style.display = 'inline-block';
 }
 
-// Fungsi untuk membatalkan mode edit
+// Fungsi untuk membatalkan edit
 cancelBtn.addEventListener('click', () => {
     dataForm.reset();
     rowIndexInput.value = '';
@@ -107,32 +112,26 @@ cancelBtn.addEventListener('click', () => {
     cancelBtn.style.display = 'none';
 });
 
-// Fungsi untuk menghapus data (DELETE)
+// Fungsi untuk menghapus data
 async function deleteData(rowIndex) {
-    if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-        return;
-    }
-    
-    const url = `${API_URL}?action=delete&rowIndex=${rowIndex}`;
-    
-    try {
-        const response = await fetch(url, {
-            method: 'GET' // Google Apps Script seringkali menggunakan GET untuk aksi sederhana
-        });
+    if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
 
+    const url = `${API_URL}?action=delete&rowIndex=${rowIndex}`;
+
+    try {
+        const response = await fetch(url);
         const result = await response.json();
         if (result.status === 'success') {
             alert(result.message);
-            fetchAndDisplayData(); // Muat ulang data
+            fetchAndDisplayData();
         } else {
-            alert('Penghapusan gagal: ' + result.message);
+            alert('Gagal menghapus data: ' + result.message);
         }
-
     } catch (error) {
         console.error('Error deleting data:', error);
         alert('Gagal menghapus data. Cek koneksi atau URL API.');
     }
 }
 
-// Panggil fungsi ini saat halaman pertama kali dimuat
+// Muat data saat halaman dimuat
 document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
